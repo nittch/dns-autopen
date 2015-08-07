@@ -10,29 +10,39 @@ Autopen is designed to be used with NSD and ldnsutils.
 Why this name? An autopen is a signing machine, see [Autopen](https://en.wikipedia.org/wiki/Autopen).
 
 ## Zone Creation
-`./dns-autopen.sh add-zone example.net`
+To create a new zone, you have to type:
+```sh
+./dns-autopen.sh add-zone example.net
+```
 
-The script will ask you at the end if you wish to create initial keys (see next section).
-
-## Creating keys
+The script will ask you at the end if you wish to create initial keys.
+You may also create keys manually with:
 ```sh
 ./dns-autopen.sh add-ksk example.net
 ./dns-autopen.sh add-zsk example.net
 ```
+You should declare DS record for KSK in parent's zone (or ask your registrar to do so).
 
-## Signing
-`./dns-autopen.sh sign-zone example.net`
+The script has created a new directory with your zone file (example.net/example.net.db), and KSK/ZSK keys (in example.net/keys directory).
+You should edit the zone, to make it fits your needs (don't forget to edit SOA field: authority name server and email contact adress).
 
-## Setup under NSD
-Once the zone has been initially signed, it may be loaded by NSD.
+When done, you have to generate a new serial and sign the zone.
+This is done by running:
+```sh
+./dns-autopen.sh sign-zone example.net
+```
+sign-zone will use every key available in example.net/keys directory.
+This will create your signed zone file (example.net/example.net.generated.signed.db), which may be loaded by NSD server.
 
 ## Zone updates
-You simply have to re-sign and reload the zone.
+After editing your example.net/example.net.db file, you simply have to re-sign and reload the zone.
 
 ```sh
 ./dns-autopen.sh sign-zone example.net
 ./dns-autopen.sh reload-zone example.net
 ```
+
+This will increase serial, sign using every keys available and make NSD to reload it.
 
 ## Automation: re-sign every day
 TODO
