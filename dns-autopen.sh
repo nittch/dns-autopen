@@ -141,7 +141,7 @@ function addkey()
   key=$(${ldnskg} $2 $domain)
   keyid=$(echo "$key" | sed -e "s/K${domain}.//g")
 
-  rm ${key}.ds
+  rm -f ${key}.ds
   # generate a new DS with multiple hash algorithms
   if [ "$3" = "ds" ]; then
     notice "You should declare these DS in parent's zone"
@@ -150,8 +150,6 @@ function addkey()
       $ldnskey2ds -n -1 ${key}.key
       echo "; $1 ${keyid} - hash SHA256"
       $ldnskey2ds -n -2 ${key}.key
-      echo "; $1 ${keyid} - hash GOST"
-      $ldnskey2ds -n -g ${key}.key
       echo "; $1 ${keyid} - hash SHA384"
       $ldnskey2ds -n -4 ${key}.key
     ) > "${key}.ds"
@@ -200,7 +198,7 @@ function sign()
   ) > $db_generated_file
 
   banner "#" "Signing zone $domain (expiration: 3 days)"
-  ${ldnssz} -n -p -s $(head -n 1000 /dev/random | sha1sum | cut -b 1-16) $db_generated_file -f $db_signed_file -e $(date '+%Y%m%d%H%M%S' -d '+3 days') -b $(find $keydir -name \*.key | sed -s "s/\.key//g")
+  ${ldnssz} -n -p -s $(head -n 1000 /dev/random | sha1sum | cut -b 1-16) $db_generated_file -f $db_signed_file -e $(date '+%Y%m%d%H%M%S' -d '+8 days') -b $(find $keydir -name \*.key | sed -s "s/\.key//g")
 
   notice "$db_signed_file is now ready for use by your DNS Server"
 
